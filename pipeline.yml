@@ -1,0 +1,116 @@
+jobs:
+  - name: make dough
+    plan:
+      - get: dough
+      - put: pizza
+        params:
+          from: dough/dough.png
+  - name: chop peppers
+    plan:
+      - get: green-pepper
+
+  - name: slice pepperoni
+    plan:
+      - get: pepperoni
+
+  - name: grate cheese
+    plan:
+      - get: cheese
+
+  - name: prep toppings
+    plan:
+      - aggregate:
+        - get: pizza-pipeline
+        - get: green-pepper
+          passed: ["chop peppers"]
+        - get: cheese
+          passed: ["grate cheese"]
+        - get: pepperoni
+          passed: ["slice pepperoni"]
+      - task: prep
+        file: /pizza-pipeline/tasks/prep-toppings.yml
+      - put: toppings
+        params:
+          from: prep/ingredients.png
+
+#   - name: add toppings to pizza
+#     plan:
+#       - get: toppings
+#         passed: ["prep toppings"]
+#       - get: pizza
+#         passed: ["make dough"]
+#       - task: add-toppings
+#         config:
+#           platform: linux
+#           image: docker:///jujhars13/docker-imagemagick#latest
+#           inputs:
+#             - name: toppings
+#             - name: pizza
+#           run:
+#             path: /bin/bash
+#             args:
+#             - -c
+#             - composite -gravity center ./toppings/toppings.png ./pizza/pizza.png ./pizza.png
+#       - put: pizza
+#         params:
+#           from: add-toppings/pizza.png
+
+resources:
+- name: pizza
+  type: s3
+  source:
+    bucket: concourse-demo-bucket
+    versioned_file: pizza.png
+    private: true
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+- name: dough
+  type: s3
+  source:
+    private: true
+    bucket: concourse-demo-bucket
+    versioned_file: dough.png
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+- name: pepperoni
+  type: s3
+  source:
+    private: true
+    bucket: concourse-demo-bucket
+    versioned_file: ingredients/pepperoni.png
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: green-pepper
+  type: s3
+  source:
+    private: true
+    bucket: concourse-demo-bucket
+    versioned_file: ingredients/green_pepper.png
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: cheese
+  type: s3
+  source:
+    private: true
+    bucket: concourse-demo-bucket
+    versioned_file: ingredients/sauce.png
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: toppings
+  type: s3
+  source:
+    private: true
+    bucket: concourse-demo-bucket
+    versioned_file: toppings/toppings.png
+    access_key_id: {{s3-access-key-id}}
+    secret_access_key: {{s3-secret-access-key}}
+
+- name: pizza-pipeline
+  type: git
+  source:
+    branch: master
+    private_key: {{github-key}}
+    uri: git@github.com:pivotal-topher-bullock/concourse-pizza-pipeline-demo.git

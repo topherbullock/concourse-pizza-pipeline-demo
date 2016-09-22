@@ -1,0 +1,18 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: jujhars13/docker-imagemagick
+
+inputs:
+  - name: green-pepper
+  - name: pepperoni
+  - name: cheese
+  - name: pizza-pipeline
+
+outputs:
+  - name: ingredients
+
+run:
+  path: pizza-pipeline/tasks/prep-toppings/run.sh
