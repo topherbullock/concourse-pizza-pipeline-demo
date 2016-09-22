@@ -16,6 +16,6 @@ pushd boxed-pizza
     <img src=\"./pizza.png\" />
   </body>
 </html>
-"
+" > index.html
 
 popd
