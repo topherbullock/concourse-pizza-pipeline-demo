@@ -13,4 +13,4 @@ outputs:
   - name: boxed-pizza
 
 run:
-  path: pizza-pipeline/tasks/deliver/run.sh
+  path: pizza-pipeline/tasks/box-pizza/run.sh
