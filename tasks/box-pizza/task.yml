@@ -1,0 +1,16 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: ubuntu
+
+inputs:
+  - name: pizza
+  - name: pizza-pipeline
+
+outputs:
+  - name: boxed-pizza
+
+run:
+  path: pizza-pipeline/tasks/deliver/run.sh
