@@ -16,6 +16,7 @@ jobs:
   - name: grate cheese
     plan:
       - get: cheese
+        triggr: true
 
   - name: prep toppings
     plan:
@@ -25,37 +26,31 @@ jobs:
           passed: ["chop peppers"]
         - get: cheese
           passed: ["grate cheese"]
+          trigger: true
         - get: pepperoni
           passed: ["slice pepperoni"]
       - task: prep
         file: pizza-pipeline/tasks/prep-toppings/task.yml
       - put: toppings
         params:
-          from: prep/ingredients.png
+          file: ingredients/ingredients.png
 
-#   - name: add toppings to pizza
-#     plan:
-#       - get: toppings
-#         passed: ["prep toppings"]
-#       - get: pizza
-#         passed: ["make dough"]
-#       - task: add-toppings
-#         config:
-#           platform: linux
-#           image: docker:///jujhars13/docker-imagemagick#latest
-#           inputs:
-#             - name: toppings
-#             - name: pizza
-#           run:
-#             path: /bin/bash
-#             args:
-#             - -c
-#             - composite -gravity center ./toppings/toppings.png ./pizza/pizza.png ./pizza.png
-#       - put: pizza
-#         params:
-#           from: add-toppings/pizza.png
+  - name: add toppings to pizza
+    plan:
+      - aggregate:
+        - get: pizza-pipeline
+        - get: toppings
+          passed: ["prep toppings"]
+        - get: pizza
+          passed: ["make dough"]
+      - task: add-toppings
+        file: pizza-pipeline/tasks/add-toppings/task.yml
+      - put: pizza
+        params:
+          file: topped-pizza/pizza.png
 
 resources:
+
 - name: pizza
   type: s3
   source:
@@ -114,3 +109,12 @@ resources:
     branch: master
     private_key: {{github-key}}
     uri: git@github.com:pivotal-topher-bullock/concourse-pizza-pipeline-demo.git
+
+- name: pws
+  type: cf
+  source:
+    api: https://api.run.pivotal.io
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: {{cf-org}}
+    space: {{cf-space}}

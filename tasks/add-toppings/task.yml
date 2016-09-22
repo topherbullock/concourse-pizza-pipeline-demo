@@ -1,0 +1,17 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: jujhars13/docker-imagemagick
+
+inputs:
+  - name: toppings
+  - name: pizza
+  - name: pizza-pipeline
+
+outputs:
+  - name: topped-pizza
+
+run:
+  path: pizza-pipeline/tasks/add-toppings/run.sh
