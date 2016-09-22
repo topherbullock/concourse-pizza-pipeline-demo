@@ -16,7 +16,7 @@ jobs:
   - name: grate cheese
     plan:
       - get: cheese
-        triggr: true
+        trigger: true
 
   - name: prep toppings
     plan:
@@ -40,6 +40,7 @@ jobs:
       - aggregate:
         - get: pizza-pipeline
         - get: toppings
+          trigger: true
           passed: ["prep toppings"]
         - get: pizza
           passed: ["make dough"]
@@ -48,6 +49,19 @@ jobs:
       - put: pizza
         params:
           file: topped-pizza/pizza.png
+  - name: deliver pizza
+    plan:
+      - aggregate:
+        - get: pizza-pipeline
+        - get: pizza
+          trigger: true
+          passed: ["add toppings to pizza"]
+      - task: box-pizza
+        file: pizza-pipeline/tasks/box-pizza/task.yml
+      - put: pws
+        params:
+          path: boxed-pizza
+          manifest: boxed-pizza/manifest.yml
 
 resources:
 
