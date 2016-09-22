@@ -28,7 +28,7 @@ jobs:
         - get: pepperoni
           passed: ["slice pepperoni"]
       - task: prep
-        file: /pizza-pipeline/tasks/prep-toppings.yml
+        file: pizza-pipeline/tasks/prep-toppings/task.yml
       - put: toppings
         params:
           from: prep/ingredients.png
