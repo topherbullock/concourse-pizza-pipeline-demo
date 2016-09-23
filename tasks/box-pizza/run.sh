@@ -2,12 +2,10 @@
 
 mv ./pizza/pizza.png ./boxed-pizza
 
+mv ./pizza-pipeline/cf-manifest.yml ./boxed-pizza/manifest.yml
+
 pushd boxed-pizza
   touch Staticfile
-
-  echo "applications:
-  - name: gimme-pizza
-    memory: 512M" > manifest.yml
 
   echo "<!DOCTYPE html>
 <html>
